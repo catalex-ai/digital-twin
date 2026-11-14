@@ -19,11 +19,11 @@ don't show them. Say what happened, not how.
 `PACKAGE` is the folder this file is in.
 
 1. **Get the package.** If `brainkit/` is next to this file, that folder is
-   `PACKAGE`. Otherwise clone `https://github.com/catalex-ai/everyday-skills.git`
-   to a temporary folder and copy `skills/digital-twin/` to the workspace as
-   `digital-twin/`. Reuse an existing `digital-twin/`; never overwrite it.
+   `PACKAGE`. Otherwise clone `https://github.com/catalex-ai/digital-twin.git` into the
+   workspace as `digital-twin/`; that folder is `PACKAGE`. Reuse an existing
+   `digital-twin/`; never overwrite it.
 2. **Run the setup script:** `PACKAGE/setup.sh`. It is the only setup step. It
-   makes the Python environment, installs the pinned packages, fetches the
+   makes the Python environment (in `~/.twin/venv`), installs the pinned packages, fetches the
    search model once and creates the brain at `~/.twin/brain`. If the owner wants
    the brain elsewhere, run it as `TWIN_HOME=<their folder> PACKAGE/setup.sh`.
    It is safe to run again. If it prints a problem (missing Python 3.11+, no

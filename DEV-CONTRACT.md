@@ -3,7 +3,7 @@
 Every module is built against this file. If you need to change a signature,
 stop and say so in your report. Don't change it silently.
 
-Run tests: `cd skills/digital-twin && .venv/bin/pytest -q`.
+Run tests: `.venv/bin/pytest -q`.
 Python 3.12 venv already set up. Runtime deps are only `mcp`, `model2vec` and
 `PyYAML`; dev also gets `pytest`. Use only the stdlib besides those.
 
@@ -28,7 +28,7 @@ audit.html
 
 ## store.py
 
-- `TEMPLATES: Path` points at `skills/digital-twin/templates`.
+- `TEMPLATES: Path` points at `templates/` at the repo root.
 - `home() -> Path`: `Path(os.environ.get("TWIN_HOME", "~/.twin/brain")).expanduser()`
 - `init(home: Path | None = None) -> Path`: creates the dirs, copies `privacy.yaml` and `schema.yaml` from TEMPLATES if missing, creates the SQLite schema (idempotent), and writes an empty `dictionary.json` `{"relations": {}, "aliases": {}}` if missing.
 - `db() -> sqlite3.Connection`: opens `raw/brain.sqlite` with `row_factory = sqlite3.Row`, calling `init()` first if needed.

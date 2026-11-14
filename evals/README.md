@@ -54,7 +54,7 @@ must_not_know, reply, tool_text}`. It prints a markdown report and writes
 - approvals: more than one approval question per (persona, category) is a violation
 - miss stages: `not_retrieved`, `answered_wrong`, `leaked`
 
-Tests: `cd skills/digital-twin && .venv/bin/pytest -q tests/test_score.py`
+Tests: `.venv/bin/pytest -q tests/test_score.py`
 
 ## 6. Tone suite
 

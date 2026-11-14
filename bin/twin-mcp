@@ -1,0 +1,34 @@
+#!/bin/sh
+# Start one of the Digital Twin's MCP servers.
+#
+#   sh bin/twin-mcp manage   # the Twin Manager's tools (read and write the brain)
+#   sh bin/twin-mcp read     # the Twin's tools (read the active persona only)
+#
+# The agent folders' .mcp.json call this, so a fresh copy of the package works
+# with no setup step: the first start installs the pinned Python packages (see
+# bin/env.sh) and creates the brain at ${TWIN_HOME:-~/.twin/brain}.
+set -eu
+
+package=$(cd -P "$(dirname "$0")/.." && pwd)
+. "$package/bin/env.sh"
+
+case "${1:-}" in
+  manage) module=brainkit.mcp_manage ;;
+  read) module=brainkit.mcp_read ;;
+  *) twin_log "usage: twin-mcp manage|read"; exit 2 ;;
+esac
+
+TWIN_HOME="${TWIN_HOME:-$HOME/.twin/brain}"
+case "$TWIN_HOME" in "~"*) TWIN_HOME="$HOME${TWIN_HOME#\~}";; esac
+case "$TWIN_HOME" in "$package"*)
+  twin_log "Keep the brain outside the package folder. Set TWIN_HOME to another folder."; exit 1;;
+esac
+export TWIN_HOME
+
+twin_ensure_env || exit 1
+export PYTHONPATH="$package${PYTHONPATH:+:$PYTHONPATH}"
+
+# Creating the brain is idempotent and never touches existing data.
+[ -d "$TWIN_HOME/raw" ] || "$twin_python" -m brainkit.cli init >/dev/null 2>&1 || true
+
+exec "$twin_python" -m "$module"

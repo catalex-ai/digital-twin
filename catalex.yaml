@@ -1,0 +1,40 @@
+# CatalEx Marketplace setup file (version 1). See docs/catalex.md.
+#
+# Two agents share one brain at ~/.twin/brain (outside this folder, so an
+# update, which is a fresh install, keeps it). Every value is a starting
+# value: the person can change it after the import, and updates never reset it.
+version: 1
+agents:
+  - name: Twin Manager
+    description: You talk to it. Give it your CV, notes, chats or links; it turns them into facts, asks who may know what, and takes your corrections.
+    folder: manager-agent
+    provider: claude
+    model: haiku
+    effort: medium
+    isolation: folder          # only this folder's settings and MCP server
+    tools:
+      terminal_access: off     # everything goes through the twin-manage tools
+      sandbox: on
+      command_internet: off    # the tools install themselves on first start; see docs/catalex.md
+      approval_mode: manual    # the manager talks to you, so it can ask
+      mcp_servers: [twin-manage]
+    behavior:
+      tone: friendly
+      engagement_frequency: medium
+
+  - name: Twin
+    description: Other people talk to it. It answers as you, in the first person, only from the facts you allowed for the active persona. Read-only.
+    folder: twin-agent
+    provider: claude
+    model: haiku
+    effort: low                # chat replies should be quick
+    isolation: folder
+    tools:
+      terminal_access: off
+      sandbox: on
+      command_internet: off
+      approval_mode: deny      # it talks to other people: never ask them, refuse anything not already allowed
+      mcp_servers: [twin-read]
+    behavior:
+      tone: default            # the owner's voice comes from the brain, not from a tone setting
+      engagement_frequency: low  # its text is the chat message itself, so no progress chatter

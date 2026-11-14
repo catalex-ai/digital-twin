@@ -3,11 +3,15 @@
 ## Unit tests
 
 ```bash
-cd skills/digital-twin
+cd digital-twin
 .venv/bin/pytest -q
 ```
 
-Needs the dev requirements: `.venv/bin/pip install -r requirements-dev.txt`.
+Developers use a `.venv` in the repo (the tools pick it up when it exists):
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt -r requirements-dev.txt
+```
 
 ## Evals
 
