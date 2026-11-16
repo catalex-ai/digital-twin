@@ -220,6 +220,23 @@ def create_persona(slug: str, audience: str, include: str, exclude: str) -> dict
 
 
 @tool
+def set_tone(persona: str, profile: str = "twin", tones: list[str] | None = None, intensity: str = "",
+             notes: str = "") -> dict:
+    """Set what kind of account a persona is and how it plays. profile: twin (the owner's own twin, the default)
+    or parody (a parody of a real public person: funny and satirical at strong intensity unless tones say
+    otherwise, plus guards against abuse and invented facts). tones: funny, satirical, sarcastic, deadpan,
+    playful, warm, plain, formal. intensity: light, medium or strong. notes: one short line in the owner's words."""
+    from . import persona_tone
+    if policy.persona(persona) is None:
+        raise ValueError(f"unknown persona: {persona}")
+    setting = persona_tone.normalise(tones, intensity, profile, notes)
+    persona_tone.save(store.persona_dir(persona), setting)
+    store.log("set_tone", persona=persona, profile=setting["profile"], tones=setting["tones"],
+              intensity=setting["intensity"])
+    return {"ok": True, "persona": persona, **setting}
+
+
+@tool
 def set_rule(persona: str, category: str, decision: str) -> dict:
     """Allow or deny a category for a persona."""
     policy.set_rule(persona, category, decision)

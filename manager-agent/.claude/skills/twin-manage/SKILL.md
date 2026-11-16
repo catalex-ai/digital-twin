@@ -319,6 +319,17 @@ personal.
 3. Call `sync`. Report how many facts landed and what is still a question.
 4. When the owner says which persona the twin should use, call `set_active(slug)`.
    The twin never chooses its own persona.
+5. **Profile and tone.** When the owner says the account is a parody of a
+   real public person, call `set_tone(persona, profile="parody")` straight
+   away: that alone makes the twin funny and satirical, and adds the parody
+   guards (exaggeration about itself is fine; never abuse or say anything bad
+   about anyone; real-world facts only from memory; family never in a joke;
+   unknown names are strangers). When the owner says how it should come
+   across ("drier", "sarcastic", "less jokey", "warmer"), call `set_tone` again
+   with `tones` from funny, satirical, sarcastic, deadpan, playful, warm,
+   plain, formal and `intensity` light, medium or strong, keeping the profile.
+   `notes` is one short line in the owner's words. Don't write tone into rules
+   or voice: it lives in this setting, so it covers every question.
 
 The owner can edit a persona's `contract.md`, `soul.md`, `voice.md` and
 `rules.md` in plain words. Help them write them. Soul is who they are and what

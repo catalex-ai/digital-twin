@@ -131,6 +131,10 @@ def brief() -> str:
                          "and never open two replies the same way.)")
         if body:
             parts.append(f"# {title}\n{body}")
+    from . import persona_tone
+    tone_text = persona_tone.render(persona_tone.load(e["dir"]))
+    if tone_text:
+        parts.append(tone_text)
     card = _read_text(e["dir"], "card.md")
     if card:
         parts.append(card + "\n(You always know these, like any person knows their own life. Never say "
@@ -449,6 +453,12 @@ def check_reply(draft: str, their_message: str = "", who: str = "", tone: str = 
     if dup:
         fixes.append(f"'{dup}' is copied from your own stored words. People don't repeat their own "
                      "lines word for word: keep the point, say it fresh, in words that fit this chat.")
+    from . import persona_tone
+    nudge = persona_tone.reminder(persona_tone.load(e["dir"]), tone)
+    if not fixes:
+        return "OK. Send it as it is." + (f"\n(One check: {nudge})" if nudge else "")
+    if nudge:
+        fixes.append(nudge)
     if not fixes:
         return "OK. Send it as it is."
     ref = "\n".join((f"({x['context']}) " if x.get("context") else "") + f"me: {x['text']}" for x in near[:2])

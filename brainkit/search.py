@@ -8,6 +8,7 @@ import json
 import os
 import re
 import sqlite3
+import threading
 from pathlib import Path
 
 import numpy as np
@@ -103,8 +104,12 @@ def build_index(persona_dir: Path, facts: list[dict]) -> None:
 
 
 class Index:
+    """A read-only index. The MCP server calls tools on worker threads, so the connection may be used
+    from any thread (open_ro) and one call at a time holds it."""
+
     def __init__(self, con: sqlite3.Connection, vectors, vec_ids):
         self._con = con
+        self._lock = threading.Lock()
         self._vectors = vectors
         self._vec_ids = vec_ids
 
@@ -132,6 +137,10 @@ class Index:
         return [self._vec_ids[i] for i in order]
 
     def search(self, q: str, k: int = 8) -> list[dict]:
+        with self._lock:
+            return self._search(q, k)
+
+    def _search(self, q: str, k: int) -> list[dict]:
         if not _fts_query(q):
             return []
         rows = {r[0]: r for r in self._bm25(q)}
@@ -162,7 +171,7 @@ class Index:
 def open_ro(persona_dir: Path) -> Index:
     persona_dir = Path(persona_dir)
     uri = "file:%s?mode=ro" % (persona_dir / "index.sqlite").resolve().as_posix()
-    con = sqlite3.connect(uri, uri=True)
+    con = sqlite3.connect(uri, uri=True, check_same_thread=False)
     vectors = vec_ids = None
     vp, ip = persona_dir / "vectors.npy", persona_dir / "vec_ids.json"
     if vp.exists() and ip.exists() and embedder_available():

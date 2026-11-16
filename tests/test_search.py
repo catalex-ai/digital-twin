@@ -93,3 +93,23 @@ def test_fts_syntax_does_not_raise(tmp_path, bm25_only):
         assert isinstance(idx.search(q), list)
     assert idx.search("") == []
     idx.close()
+
+
+def test_index_is_usable_from_another_thread(tmp_path):
+    """The MCP server opens the index on one worker thread and may search it on another."""
+    import threading
+    from brainkit import search as S
+    S.build_index(tmp_path, [{"id": "f1", "about": "me", "text": "I was born in Taiwan in 1963."}])
+    idx = S.open_ro(tmp_path)
+    out, errors = [], []
+
+    def run():
+        try:
+            out.extend(idx.search("born Taiwan"))
+        except Exception as e:  # noqa: BLE001
+            errors.append(e)
+
+    t = threading.Thread(target=run)
+    t.start()
+    t.join()
+    assert not errors and out and out[0]["id"] == "f1"
