@@ -414,6 +414,10 @@ def ask_owner(question: str, who: str = "") -> str:
         e = _load()
     except _Unavailable:
         return NO_PERSONA
+    from . import persona_tone
+    if persona_tone.is_parody(persona_tone.load(e["dir"])):
+        # A parody talks to strangers about a public person: their messages never go to an owner's inbox.
+        return "Not for this profile. Answer in character from what you already have."
     q = gate.strip_tokens(gate.redact(" ".join(str(question).split())[:400])[0])
     w = gate.strip_tokens(gate.redact(" ".join(str(who).split())[:80])[0])
     if not q:
@@ -454,9 +458,15 @@ def check_reply(draft: str, their_message: str = "", who: str = "", tone: str = 
         fixes.append(f"'{dup}' is copied from your own stored words. People don't repeat their own "
                      "lines word for word: keep the point, say it fresh, in words that fit this chat.")
     from . import persona_tone
-    nudge = persona_tone.reminder(persona_tone.load(e["dir"]), tone)
+    tone_setting = persona_tone.load(e["dir"])
+    if "family_names" not in e:
+        e["family_names"] = persona_tone.family_names(e["facts"])
+    fam = persona_tone.family_check(tone_setting, draft, their_message, e["family_names"])
+    if fam:
+        fixes.append(fam)
+    nudge = persona_tone.reminder(tone_setting, tone)
     if not fixes:
-        return "OK. Send it as it is." + (f"\n(One check: {nudge})" if nudge else "")
+        return nudge if nudge else "OK. Send it as it is."
     if nudge:
         fixes.append(nudge)
     if not fixes:

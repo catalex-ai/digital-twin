@@ -78,6 +78,10 @@ small search model (about 30 MB). It is safe to run again.
 Questions never block. Material is always kept, and what is waiting on an answer
 simply waits.
 
+**Profiles.** One brain can hold several identities, each fully separate and
+each with a tone preset (natural, light, humorous, serious, leader, parody).
+See [docs/profiles.md](docs/profiles.md).
+
 ## Things to say to the manager
 
 - "Create a persona called Professional for people I work with."
@@ -91,6 +95,7 @@ simply waits.
 - "Make the twin sound more casual."
 - "Never keep my phone number." / "Allow my email in Personal."
 - "Tidy up." / "Show me what the twin knows."
+- "Set up a parody of <name>." / "Switch to <profile>." / "Make it funnier."
 
 After new chats or replies, the manager runs `make_foils`: for each real
 message it writes the polished version a bot would have sent, and the twin is

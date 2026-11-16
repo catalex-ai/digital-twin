@@ -18,6 +18,8 @@ COMMANDS = {
     "record-correction": M.record_correction, "tidy": M.tidy, "audit": M.audit,
     "gate-scan": M.gate_scan, "list-items": M.list_items,
     "write-persona-text": M.write_persona_text, "make-foils": M.make_foils,
+    "create-profile": M.create_profile, "use-profile": M.use_profile, "import-profile": M.import_profile, "list-profiles": M.list_profiles,
+    "set-tone": M.set_tone,
 }
 
 

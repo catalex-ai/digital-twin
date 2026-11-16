@@ -2,8 +2,14 @@
   "mcpServers": {
     "twin-read": {
       "command": "sh",
-      "args": ["../bin/twin-mcp", "read"],
-      "env": {"TWIN_HOME": "${TWIN_HOME:-~/.twin/brain}"}
+      "args": [
+        "../bin/twin-mcp",
+        "read"
+      ],
+      "env": {
+        "TWIN_HOME": "${TWIN_HOME:-~/.twin/brain}",
+        "TWIN_PROFILE": "${TWIN_PROFILE:-}"
+      }
     }
   }
 }

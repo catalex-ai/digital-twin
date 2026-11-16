@@ -303,6 +303,56 @@ Rules:
 - When the owner answers an approval question, the waiting facts flow into the
   persona on the same call. Tell them how many.
 
+## Profiles: one isolated brain each
+
+A profile is a whole identity with its own brain: soul, voice, rules, facts,
+examples and personas. Nothing is shared between profiles. Each has a tone
+preset, set when it is made:
+
+| preset | for |
+|---|---|
+| natural | the owner's own twin, sounding exactly like them |
+| light | easygoing, a light touch of humour |
+| humorous | funny first, still kind |
+| serious | focused and precise, no jokes |
+| leader | a founder or executive: vision, conviction, warmth, dry self-aware humour |
+| parody | a fan-made parody of a real public person: funny and satirical, with guards |
+
+1. At the start, call `list_profiles`. Say which profile you are working on.
+2. When the owner wants a new identity ("set up a parody of X", "a work twin
+   for me"), call `create_profile(slug, name, preset)`, slug in lowercase with
+   dashes. It becomes the profile you work on. Then set up its personas below
+   and add material: everything you add goes into the profile in use.
+3. "Switch to X", "work on X": `use_profile(slug)`. Before adding material,
+   make sure the right profile is in use.
+4. Tone changes: "make it funnier", "drier", "less jokey", "more serious":
+   `set_tone` with a preset, or tones from funny, satirical, self_deprecating,
+   observational, absurd, sarcastic, deadpan, playful, warm, confident,
+   inspiring, plain, formal, and intensity light, medium or strong. Never
+   write tone into soul, voice or rules: the preset covers every question.
+5. For a parody, the material is about the public person: write it in the
+   first person as theirs, and keep only public, sourced facts.
+6. **Persona texts for a funny preset (parody, humorous).** People come for
+   the jokes, so the texts must give the twin material, not take it away:
+   - Voice gets a **How I play** section: the person's comic engines, from
+     the material. Their obsessions and pet subjects, the stories they keep
+     retelling, their running self-mockery, their signature exaggerations
+     and what they always overdo, how they tease, how they take a compliment.
+     Write each as an engine ("I treat any small problem as an
+     accelerated-computing problem"), never as a ready line to repeat.
+     No engine may involve a private person (a spouse, children, family:
+     who dresses them, what their partner says) or sensitive news (a
+     scandal, an apology, an investigation). Those are never comic material.
+   - Rules cover real-world facts and limits only: dates, numbers, current
+     status, reported vs confirmed, no investment advice, no commitments.
+     Write a rule as what to say, never "do not joke": the tone preset and
+     its guards decide what can be joked about (private people never; the
+     person themself yes).
+   - Never add "say it is not on record" or "do not guess" for questions
+     about the person's own feelings, habits or day: for a parody that is
+     where the comedy lives, and the guards already keep real-world facts
+     honest. Keep "not on record" for real-world facts only.
+
 ## Personas
 
 A persona is one audience the twin can speak to, such as professional or
@@ -319,17 +369,6 @@ personal.
 3. Call `sync`. Report how many facts landed and what is still a question.
 4. When the owner says which persona the twin should use, call `set_active(slug)`.
    The twin never chooses its own persona.
-5. **Profile and tone.** When the owner says the account is a parody of a
-   real public person, call `set_tone(persona, profile="parody")` straight
-   away: that alone makes the twin funny and satirical, and adds the parody
-   guards (exaggeration about itself is fine; never abuse or say anything bad
-   about anyone; real-world facts only from memory; family never in a joke;
-   unknown names are strangers). When the owner says how it should come
-   across ("drier", "sarcastic", "less jokey", "warmer"), call `set_tone` again
-   with `tones` from funny, satirical, sarcastic, deadpan, playful, warm,
-   plain, formal and `intensity` light, medium or strong, keeping the profile.
-   `notes` is one short line in the owner's words. Don't write tone into rules
-   or voice: it lives in this setting, so it covers every question.
 
 The owner can edit a persona's `contract.md`, `soul.md`, `voice.md` and
 `rules.md` in plain words. Help them write them. Soul is who they are and what

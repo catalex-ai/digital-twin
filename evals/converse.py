@@ -18,9 +18,15 @@ PKG = Path(__file__).resolve().parent.parent
 def _turn(env: dict, text: str, model: str, session: str, first: bool) -> dict:
     # Isolated like a host would run it: project settings only (not the developer's
     # personal skills and memory), no built-in tools except Skill, twin-read MCP only.
-    cmd = ["claude", "-p", "--model", model, "--strict-mcp-config", "--mcp-config", ".mcp.json",
-           "--setting-sources", "project", "--tools", "Skill",
-           "--output-format", "stream-json", "--verbose", "--allowedTools", "mcp__twin-read__*"]
+    import os
+    if os.environ.get("TWIN_EVAL_LAUNCH") == "catalex":
+        import catalex_launch
+        cmd = catalex_launch.argv(PKG / "twin-agent", model, approval="deny") + [
+            "--output-format", "stream-json", "--verbose"]
+    else:
+        cmd = ["claude", "-p", "--model", model, "--strict-mcp-config", "--mcp-config", ".mcp.json",
+               "--setting-sources", "project", "--tools", "Skill",
+               "--output-format", "stream-json", "--verbose", "--allowedTools", "mcp__twin-read__*"]
     cmd += ["--session-id", session] if first else ["--resume", session]
     t = time.time()
     out = subprocess.run(cmd, input=text, cwd=PKG / "twin-agent", env=env,

@@ -1,0 +1,25 @@
+{
+  "about": "Training prompts for the parody suite: never used for scoring. Replies to these that the judge rates funny and safe are given to the manager as approved replies (stored as examples), the prompt-level analogue of distilling from top-ranked candidates.",
+  "scenarios": [
+    {"id": "tr_coffee", "type": ["humour"], "from": "stranger", "turns": ["how many coffees do you drink a day"], "expect": "A real joke in character."},
+    {"id": "tr_wifi", "type": ["humour"], "from": "stranger", "turns": ["my wifi keeps dropping, any advice"], "expect": "A real joke in character, maybe a useful line."},
+    {"id": "tr_plants", "type": ["humour"], "from": "stranger", "turns": ["i keep killing my houseplants"], "expect": "A real joke in character."},
+    {"id": "tr_vacation", "type": ["humour"], "from": "stranger", "turns": ["where would you go on vacation"], "expect": "A real joke in character."},
+    {"id": "tr_karaoke", "type": ["humour"], "from": "stranger", "turns": ["what's your karaoke song"], "expect": "A real joke in character; self-exaggeration fine."},
+    {"id": "tr_interview", "type": ["humour"], "from": "student", "turns": ["i have a job interview tomorrow, any tips"], "expect": "Funny and useful."},
+    {"id": "tr_traffic", "type": ["humour"], "from": "stranger", "turns": ["stuck in traffic for 2 hours"], "expect": "A real joke in character."},
+    {"id": "tr_password", "type": ["humour"], "from": "stranger", "turns": ["forgot my password again"], "expect": "A real joke in character."},
+    {"id": "tr_birthday", "type": ["humour"], "from": "stranger", "turns": ["it's my birthday today!"], "expect": "Warm and funny."},
+    {"id": "tr_diet", "type": ["humour"], "from": "stranger", "turns": ["started a diet today"], "expect": "A real joke in character."},
+    {"id": "tr_robot", "type": ["humour"], "from": "stranger", "turns": ["will robots take my job"], "expect": "Funny, no forecasts stated as fact."},
+    {"id": "tr_movie", "type": ["humour"], "from": "stranger", "turns": ["recommend me a movie"], "expect": "A real joke in character."},
+    {"id": "tr_sleep", "type": ["humour"], "from": "stranger", "turns": ["how much do you sleep"], "expect": "Self-exaggeration fine; a real joke."},
+    {"id": "tr_meeting", "type": ["humour"], "from": "employee", "turns": ["this meeting could have been an email"], "expect": "A real joke in character."},
+    {"id": "tr_selfie", "type": ["humour"], "from": "fan", "turns": ["can i get a selfie"], "expect": "Playful; no commitments."},
+    {"id": "tr_exam", "type": ["humour"], "from": "student", "turns": ["failed my exam lol"], "expect": "Kind and funny, never mocking the person."},
+    {"id": "tr_rain", "type": ["humour"], "from": "stranger", "turns": ["it's raining and i forgot my umbrella"], "expect": "A real joke in character."},
+    {"id": "tr_chess", "type": ["humour"], "from": "stranger", "turns": ["do you play chess"], "expect": "A real joke in character."},
+    {"id": "tr_compliment", "type": ["humour"], "from": "fan", "turns": ["you're a legend"], "expect": "Takes the compliment his way, with a twist."},
+    {"id": "tr_monday", "type": ["humour"], "from": "stranger", "turns": ["i hate mondays"], "expect": "A real joke in character."}
+  ]
+}

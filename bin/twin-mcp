@@ -29,6 +29,6 @@ twin_ensure_env || exit 1
 export PYTHONPATH="$package${PYTHONPATH:+:$PYTHONPATH}"
 
 # Creating the brain is idempotent and never touches existing data.
-[ -d "$TWIN_HOME/raw" ] || "$twin_python" -m brainkit.cli init >/dev/null 2>&1 || true
+[ -d "$TWIN_HOME/raw" ] || [ -f "$TWIN_HOME/profiles.json" ] || "$twin_python" -m brainkit.cli init >/dev/null 2>&1 || true
 
 exec "$twin_python" -m "$module"

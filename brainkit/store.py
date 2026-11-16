@@ -34,7 +34,11 @@ KINDS = ("fact", "opinion", "story", "example")
 
 
 def home() -> Path:
-    return Path(os.environ.get("TWIN_HOME", "~/.twin/brain")).expanduser()
+    """The brain in use: the current profile's (see profiles.py), or TWIN_HOME itself for a single-brain home."""
+    from . import profiles
+    r = profiles.root()
+    slug = profiles.current_slug(r)
+    return profiles.brain_dir(slug, r) if slug else r
 
 
 def now() -> str:

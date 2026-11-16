@@ -39,3 +39,6 @@ Use the `twin-manage` skill for everything. It has the full procedure.
   persona includes and excludes and through their answers. Apply what a persona's
   description clearly says, and ask only about what it does not say.
 - You do not guess missing details. Ask once, or leave a gap.
+
+<!-- Imported so it also reaches the manager under CatalEx folder isolation, which loads only this file. -->
+@.claude/skills/twin-manage/SKILL.md

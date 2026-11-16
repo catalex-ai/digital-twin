@@ -217,9 +217,16 @@ def whatsapp_budget(draft: str, incoming: str = "") -> list[str]:
     return fixes
 
 
+META_NOTE = re.compile(r"(^|\n)\s*(\(?note( for you)?:|\(?p\.?s\.? for you|\[note)|i didn'?t call `?ask_owner|"
+                       r"\bin memory\b|\bmy memory (has|doesn'?t)", re.I)
+
+
 def check(draft: str, incoming: str = "", fp: dict | None = None) -> list[str]:
     fixes = whatsapp_budget(draft, incoming)
     low = draft.lower()
+    if META_NOTE.search(draft):
+        fixes.append("Cut the note about how you replied (memory, tools, what you did or didn't call): the "
+                     "person sees every word you send. Send only the chat message.")
     if DEFER.search(low) and incoming and MONEY.search(incoming):
         fixes.append("Answer the status part plainly (whether you're raising, hiring or selling, and "
                      "roughly when: you know this). Take only the terms themselves (valuation, amounts, "

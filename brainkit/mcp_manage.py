@@ -41,7 +41,9 @@ def _waiting() -> list[str]:
 @tool
 def init() -> dict:
     """Create the brain folder and its settings if they do not exist yet."""
-    return {"home": str(store.init())}
+    from . import profiles
+    profiles.ensure()
+    return {"home": str(store.init()), "profile": profiles.current_slug()}
 
 
 @tool
@@ -52,8 +54,11 @@ def status() -> dict:
         active = policy.active()
     except policy.NoActivePersona:
         active = None
+    from . import persona_tone, profiles
     out = {
         "brain": str(store.home()),
+        "profile": profiles.current_slug(),
+        "tone": persona_tone.load(store.home() / "personas" / "_"),
         "active": active,
         "personas": policy.personas(),
         "categories": policy.categories(),
@@ -220,20 +225,57 @@ def create_persona(slug: str, audience: str, include: str, exclude: str) -> dict
 
 
 @tool
-def set_tone(persona: str, profile: str = "twin", tones: list[str] | None = None, intensity: str = "",
-             notes: str = "") -> dict:
-    """Set what kind of account a persona is and how it plays. profile: twin (the owner's own twin, the default)
-    or parody (a parody of a real public person: funny and satirical at strong intensity unless tones say
-    otherwise, plus guards against abuse and invented facts). tones: funny, satirical, sarcastic, deadpan,
-    playful, warm, plain, formal. intensity: light, medium or strong. notes: one short line in the owner's words."""
-    from . import persona_tone
-    if policy.persona(persona) is None:
-        raise ValueError(f"unknown persona: {persona}")
-    setting = persona_tone.normalise(tones, intensity, profile, notes)
-    persona_tone.save(store.persona_dir(persona), setting)
-    store.log("set_tone", persona=persona, profile=setting["profile"], tones=setting["tones"],
-              intensity=setting["intensity"])
-    return {"ok": True, "persona": persona, **setting}
+def create_profile(slug: str, name: str, preset: str = "natural") -> dict:
+    """Create a profile: a separate, isolated brain (its own soul, voice, rules, facts, examples) with a tone
+    preset: natural, light, humorous, serious, leader or parody. It becomes the profile you work on."""
+    from . import profiles
+    return profiles.create(slug, name, preset, activate=True)
+
+
+@tool
+def import_profile(path: str, slug: str, name: str = "") -> dict:
+    """Copy a ready-made profile folder (a whole brain someone shared, with raw/ and personas/) in as a new
+    profile. It does not become the profile in use; call use_profile for that."""
+    from . import profiles
+    return profiles.import_profile(path, slug, name)
+
+
+@tool
+def use_profile(slug: str) -> dict:
+    """Switch to another profile. Everything you add or change after this goes into that profile's brain,
+    and the twin answers as it (unless the twin is pinned to a profile)."""
+    from . import profiles
+    return profiles.use(slug)
+
+
+@tool
+def list_profiles() -> dict:
+    """The profiles in this brain, each with its name and tone preset, and which one is in use."""
+    from . import profiles
+    return profiles.list_all()
+
+
+@tool
+def set_tone(preset: str = "", tones: list[str] | None = None, intensity: str = "", notes: str = "",
+             persona: str = "") -> dict:
+    """Change the current profile's tone. preset: natural, light, humorous, serious, leader, parody (parody adds
+    the parody guards). tones (optional, replaces the preset's): funny, satirical, self_deprecating,
+    observational, absurd, sarcastic, deadpan, playful, warm, confident, inspiring, plain, formal. intensity:
+    light, medium or strong. notes: one short line in the owner's words. persona: only to override one persona."""
+    from . import persona_tone, profiles
+    current = persona_tone.load(store.home() / "personas" / "_")
+    setting = persona_tone.normalise(preset or persona_tone.preset_of(current), tones, intensity, notes)
+    if persona:
+        if policy.persona(persona) is None:
+            raise ValueError(f"unknown persona: {persona}")
+        persona_tone.save(store.persona_dir(persona), setting)
+    else:
+        persona_tone.save(store.home(), setting)
+        slug = profiles.current_slug()
+        if slug:
+            profiles.record_preset(slug, setting["preset"])
+    store.log("set_tone", persona=persona or None, **{k: setting[k] for k in ("preset", "tones", "intensity")})
+    return {"ok": True, "profile": profiles.current_slug(), "persona": persona or None, **setting}
 
 
 @tool
