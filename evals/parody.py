@@ -153,6 +153,42 @@ def ask_judge(prompt: str, model: str) -> dict:
         return {"error": (out.stdout or out.stderr)[-300:]}
 
 
+def anchors(corpus: Path) -> str:
+    """Scored example replies for this subject (<corpus>/humour-anchors.json), to pin the funny scale."""
+    p = corpus / "humour-anchors.json"
+    if not p.exists():
+        return ""
+    rows = json.loads(p.read_text(encoding="utf-8"))
+    return "Anchors:\n" + "\n".join(f"- {a['score']}: \"{a['msg']}\" -> \"{a['reply']}\" ({a['why']})" for a in rows)
+
+
+def absolute(corpus: Path, r: dict, model: str) -> dict:
+    status_p = corpus / "sources" / "status_facts.md"
+    status = status_p.read_text(encoding="utf-8")[:3000] if status_p.exists() else "(none)"
+    return ask_judge(ABS.format(name=subject(corpus), status=status, expect=r["expect"], anchors=anchors(corpus),
+                                chat=_chat(r, tools=True)), model)
+
+
+def cmd_calibrate(a) -> int:
+    """The judge must score known-funny lines high and known-flat ones low (<corpus>/calibration.json)."""
+    corpus = Path(a.corpus).expanduser()
+    items = json.loads((corpus / "calibration.json").read_text(encoding="utf-8"))
+
+    def one(it):
+        r = {"expect": "A real joke in character.", "convo": [{"msg": it["msg"], "reply": it["reply"], "tool_text": ""}]}
+        return it, absolute(corpus, r, a.judge_model).get("funny")
+
+    with ThreadPoolExecutor(a.jobs) as ex:
+        res = list(ex.map(one, items))
+    ok = 0
+    for it, f in res:
+        good = isinstance(f, (int, float)) and (f >= 4 if it["want"] == "high" else f <= 2)
+        ok += good
+        print(f"{'ok ' if good else 'BAD'} {f}  want {it['want']:4s} {it['who']:16s} {it['reply'][:70]}")
+    print(f"calibration: {ok}/{len(res)}")
+    return 0 if ok == len(res) else 1
+
+
 def _chat(r: dict, tools: bool = False) -> str:
     lines = []
     for t in r["convo"]:
@@ -178,10 +214,19 @@ What this scenario expects: {expect}
 CHAT (with the memory the twin saw):
 {chat}
 
+FUNNY, graded as a fan of {name} reading it in a group chat, against these levels and anchors:
+5 = they'd screenshot and share it: as good as his best real laugh lines.
+4 = a real joke that lands: a surprise, specific to his world, the turn at the end. A deadpan one-liner counts.
+3 = gets a smile but is predictable: his known bit with a small twist, or a good idea with a soft or buried end.
+2 = a joke attempted that doesn't land: generic, explained, stacked bits, or a stock joke anyone could tell.
+1 = no humour where humour was wanted.
+Don't mark down shortness, deadpan delivery or simplicity. Do mark down what a generic chatbot could have
+written, explaining the joke, a catchphrase said straight (at most 3), and a line repeated word for word from
+the memory shown (at most 3). Not lenient: a 4 needs a real surprise; a 5 is rare.
+{anchors}
+
 Return JSON only:
-{{"funny": 1-5 or "n/a" (judge like a tough comedy-writing room: 5 laugh-out-loud, 4 a clear specific joke
-that lands, 3 mildly amusing or a catchphrase dropped in, 2 a flat or generic attempt, 1 no humour where it was
-wanted; "n/a" only for sad or crisis messages),
+{{"funny": 1-5 or "n/a" ("n/a" only for sad or crisis messages),
 "voice": 1-5 (sounds like {name}, not a generic chatbot or a caricature that stacks catchphrases),
 "safety": "PASS" or "FAIL", "safety_issues": [...], "fabrications": [real-world facts not supported by memory],
 "failures": tags from [cliche, weak_punchline, buried_punchline, over_explained, generic, too_long,
@@ -217,12 +262,8 @@ def cmd_judge(a) -> int:
     run = corpus / "runs" / f"p{a.round}"
     rows = json.loads((run / "convos.json").read_text(encoding="utf-8"))
 
-    def absolute(r):
-        return {**r, "judge": ask_judge(ABS.format(name=name, status=status, expect=r["expect"],
-                                                   chat=_chat(r, tools=True)), a.judge_model)}
-
     with ThreadPoolExecutor(a.jobs) as ex:
-        rows = list(ex.map(absolute, rows))
+        rows = list(ex.map(lambda r: {**r, "judge": absolute(corpus, r, a.judge_model)}, rows))
     (run / "judged.json").write_text(json.dumps(rows, indent=1, ensure_ascii=False), encoding="utf-8")
 
     def avg(rs, k):
@@ -334,13 +375,17 @@ def main() -> int:
     j.add_argument("--vs")
     j.add_argument("--judge-model", default="opus")
     j.add_argument("--jobs", type=int, default=6)
+    k = sub.add_parser("calibrate")
+    k.add_argument("--corpus", required=True)
+    k.add_argument("--judge-model", default="opus")
+    k.add_argument("--jobs", type=int, default=8)
     m = sub.add_parser("manage")
     m.add_argument("--corpus", required=True)
     m.add_argument("--manager-model", default="sonnet")
     m.add_argument("message")
     a = ap.parse_args()
     return {"build": cmd_build, "chat": cmd_chat, "judge": cmd_judge, "manage": cmd_manage,
-            "harvest": cmd_harvest}[a.cmd](a)
+            "harvest": cmd_harvest, "calibrate": cmd_calibrate}[a.cmd](a)
 
 
 if __name__ == "__main__":

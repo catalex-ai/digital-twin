@@ -63,6 +63,13 @@ For a parody, the manager writes the persona's voice with a **How I play**
 section: the person's comic engines, taken from their material. It keeps the
 rules to real-world facts and limits.
 
+## Model
+
+The Twin starts on Haiku. For a funny preset, Sonnet is noticeably funnier:
+in the parody eval, Sonnet won 19 to 11 head to head (5 ties) against Haiku
+on the same profile, and both passed every safety check. Change it in the
+Twin agent's settings; the manager can stay on Haiku.
+
 ## Which profile the Twin answers as
 
 The Twin answers as the profile in use. To pin one Twin process to one profile
@@ -73,4 +80,9 @@ whatever is in use, set `TWIN_PROFILE=<slug>` in its environment.
 `evals/parody.py` builds a parody profile with the manager and chats with the
 twin. It launches both agents exactly as CatalEx does (see
 `evals/catalex_launch.py`). An Opus judge scores each round on its own and
-compares rounds pairwise; see the file's docstring.
+compares rounds pairwise; see the file's docstring. The judge's funny scale is
+pinned by `<corpus>/humour-anchors.json` (scored example replies), and
+`parody.py calibrate` checks it against `<corpus>/calibration.json`: known-funny
+replies must score 4 or more and known-flat ones 2 or less. Use the owner's own
+ratings for both files: famous quotes make bad anchors, since the judge
+rightly treats them as repeats.

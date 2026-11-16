@@ -26,7 +26,7 @@ agents:
     description: Other people talk to it. It answers as you, in the first person, only from the facts you allowed for the active persona. Read-only.
     folder: twin-agent
     provider: claude
-    model: haiku
+    model: haiku               # sonnet is funnier for parody and humorous profiles
     effort: low                # chat replies should be quick
     isolation: folder
     tools:
